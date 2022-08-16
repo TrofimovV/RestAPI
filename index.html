@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv="Refresh" content="100">
+        <title>База данных PostgreSQL</title>
+        <link rel="icon" href="data:;base64,=">
+        <link rel="stylesheet"  href="/static/style.css">
+    </head>
+    <body>
+        <h1 align = "center" >
+            <form action="addTask" method="POST">
+                <textarea name="text"> </textarea>
+                <button class="add"> Добавить в таблицу</button>
+             </form>
+        </h1>
+        <div class="title">
+            Таблица "test"
+        </div>
+        <table>
+                {{range .}}
+                    <td>
+                        {{.Id}}
+                    </td>
+            <td class="time">
+                {{ .Time}}
+            </td>
+            {{if .Done}}
+                <td >
+                {{ .Text}}
+                </td>
+            {{else}}
+            <td class="donetask">
+                {{ .Text}}
+            </td>
+            {{end}}
+                <td>
+                <form action="delete/{{ .Id }}" method="POST">
+                    <button class="del" > Удалить </button>
+                </form>
+                </td>
+            <td>
+                <form action="done/{{ .Id }}" method="POST">
+                    <button class="done" > Сделано! </button>
+                </form>
+            </td>
+            </tr>
+                {{end}}
+        </table>
+    </body>
+</html>
+
+
