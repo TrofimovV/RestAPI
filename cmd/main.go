@@ -3,6 +3,8 @@ package main
 import (
 	"RestAPI/internal/user"
 	"github.com/julienschmidt/httprouter"
+	"log"
+	"net"
 	"net/http"
 )
 
@@ -17,16 +19,13 @@ func main() {
 }
 
 func start(router *httprouter.Router) {
-	http.ListenAndServe(":8080", router)
-	//listener, err := net.Listen("tcp", ":1234")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//server := &http.Server{
-	//	Handler:      router,
-	//	ReadTimeout:  10,
-	//	WriteTimeout: 10,
-	//}
-	//log.Fatal(server.Serve(listener))
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server := &http.Server{
+		Handler: router,
+	}
+	log.Fatal(server.Serve(listener))
 }

@@ -20,13 +20,12 @@ func NewHandler() handlers.Handler {
 func (h *handler) Register(router *httprouter.Router) {
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/", h.IndexHandle)
-	router.POST("/delete/:uuid", h.DeleteTask)
-	router.POST("/addTask/", h.AddTask)
-	router.POST("/done/:uuid", h.Done)
+	router.GET("/delete/:uuid", h.DeleteTask)
+	router.GET("/addTask/", h.AddTask)
+	router.GET("/done/:uuid", h.Done)
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	log.Print("соединение с бд")
 	row, err := NewConnectDB().Query("select * from test order by id") // Соединение с БД
 	if err != nil {
 		panic(err)
@@ -51,10 +50,8 @@ func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params htt
 }
 
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	log.Print(r.URL.Path)
-	IdTask := r.URL.Path
-	IdTask = strings.TrimLeft(IdTask, "/delete/")
-	_, err := NewConnectDB().Exec(fmt.Sprintf("delete from test where id = %v", IdTask))
+	p := params.ByName("uuid")
+	_, err := NewConnectDB().Exec(fmt.Sprintf("delete from test where id = %v", p))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,9 +71,8 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request, params httprou
 }
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	done := r.URL.Path
-	done = strings.TrimLeft(done, "/done/")
-	_, err := NewConnectDB().Exec("update test set done = not done where id = $1", done)
+	p := params.ByName("uuid")
+	_, err := NewConnectDB().Exec("update test set done = not done where id = $1", p)
 	if err != nil {
 		log.Fatal(err)
 	}

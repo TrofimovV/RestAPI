@@ -9,7 +9,7 @@
     </head>
     <body>
         <h1 align = "center" >
-            <form action="addTask" method="POST">
+            <form action="addTask">
                 <textarea name="text"> </textarea>
                 <button class="add"> Добавить в таблицу</button>
              </form>
@@ -35,13 +35,13 @@
             </td>
             {{end}}
                 <td>
-                <form action="delete/{{ .Id }}" method="POST">
-                    <button class="del" > Удалить </button>
+                <form action="delete/{{ .Id }}">
+                    <button class="del"> Удалить </button>
                 </form>
                 </td>
             <td>
-                <form action="done/{{ .Id }}" method="POST">
-                    <button class="done" > Сделано! </button>
+                <form action="done/{{ .Id }}">
+                    <button class="done" name="del" > Сделано! </button>
                 </form>
             </td>
             </tr>
