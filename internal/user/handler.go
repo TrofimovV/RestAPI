@@ -20,7 +20,7 @@ func NewHandler(logger *logrus.Entry) *handler {
 	}
 }
 
-func (h *handler) Register(router *httprouter.Router) {
+func (h *handler) RegisterRouter(router *httprouter.Router) {
 	h.log.Trace("11111111")
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/", h.IndexHandle)

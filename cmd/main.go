@@ -19,7 +19,7 @@ func main() {
 
 	handler := user.NewHandler(log)
 
-	handler.Register(router)
+	handler.RegisterRouter(router)
 
 	start(router)
 }
