@@ -13,10 +13,6 @@ type Task struct {
 	Done bool
 }
 
-func NewStorage() []*Task {
-	return []*Task{}
-}
-
 func NewConnectDB() *sql.DB {
 	db, err := sql.Open("postgres", "host=localhost port=5432 password=1 dbname=API sslmode=disable")
 	if err != nil {
