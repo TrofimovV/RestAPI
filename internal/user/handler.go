@@ -45,7 +45,7 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 
 func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 	if h.user.Entry {
-		table := fmt.Sprintf("select * from %s", h.user.Name)
+		table := fmt.Sprintf("select * from %s order by id", h.user.Name)
 
 		row, err := h.db.Query(table)
 		if err != nil {
@@ -82,11 +82,13 @@ func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	h.logger.Warnf("Удаление записи id : %s", vars["id"])
-	_, err := h.db.Exec("delete from $2 where id = $1", vars["id"], h.user.Name)
+	table := fmt.Sprintf("delete from %s where id = %s", h.user.Name, vars["id"])
+	_, err := h.db.Exec(table)
 	if err != nil {
 		h.logger.Error(err)
 	}
+
+	h.logger.Warnf("Удаление записи id : %s", vars["id"])
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
 }
@@ -109,11 +111,12 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	h.logger.Infof("Измениние состояния id = : %v", vars["id"])
-	_, err := h.db.Exec("update $1 set done = not done where id = $2", h.user.Name, vars["id"])
+	table := fmt.Sprintf("update %s set done = not done where id = %s", h.user.Name, vars["id"])
+	_, err := h.db.Exec(table)
 	if err != nil {
 		h.logger.Error(err)
 	}
+	h.logger.Infof("Измениние состояния id = : %v", vars["id"])
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
 }
