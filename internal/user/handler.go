@@ -21,7 +21,7 @@ func NewHandler(logger *logrus.Entry) *handler {
 }
 
 func (h *handler) RegisterRouter(router *httprouter.Router) {
-	h.log.Trace("11111111")
+	h.log.Info("Регистрация обработчиков")
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/", h.IndexHandle)
 	router.GET("/delete/:uuid", h.DeleteTask)
@@ -30,7 +30,7 @@ func (h *handler) RegisterRouter(router *httprouter.Router) {
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	h.log.Info("fddjsfdj")
+	h.log.Info("Домашняя страница")
 	row, err := NewConnectDB().Query("select * from test order by id") // Соединение с БД
 	if err != nil {
 		panic(err)
@@ -56,11 +56,11 @@ func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params htt
 
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	p := params.ByName("uuid")
+	h.log.Warnf("Удаление записи id : %s", p)
 	_, err := NewConnectDB().Exec(fmt.Sprintf("delete from test where id = %v", p))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print("Удаление поля")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -70,13 +70,14 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request, params httprou
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print("Добавление поля ")
+	h.log.Info("Добавление записи в БД")
 	defer http.Redirect(w, r, "/", http.StatusSeeOther)
 
 }
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	p := params.ByName("uuid")
+	h.log.Infof("Измениние состояния id = : %v", p)
 	_, err := NewConnectDB().Exec("update test set done = not done where id = $1", p)
 	if err != nil {
 		log.Fatal(err)

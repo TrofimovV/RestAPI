@@ -13,8 +13,6 @@ func main() {
 
 	log := logging.GetLogger()
 
-	log.Warning("Инициализация логгера")
-
 	router := httprouter.New()
 
 	handler := user.NewHandler(log)
@@ -33,5 +31,9 @@ func start(router *httprouter.Router) {
 	server := &http.Server{
 		Handler: router,
 	}
-	log.Fatal(server.Serve(listener))
+
+	logging.GetLogger().Debugf("Сервер слушает порт : 8080")
+
+	server.Serve(listener)
+
 }
