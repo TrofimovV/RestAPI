@@ -13,7 +13,7 @@ func main() {
 
 	log := logging.GetLogger()
 
-	log.Warning("nhfnhfnfh")
+	log.Warning("Инициализация логгера")
 
 	router := httprouter.New()
 
