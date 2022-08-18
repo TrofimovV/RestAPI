@@ -20,8 +20,13 @@ func NewHandler(logger *logrus.Entry) *handler {
 	}
 }
 
+<<<<<<< HEAD
 func (h *handler) RegisterRouter(router *httprouter.Router) {
 	h.log.Info("Регистрация обработчиков")
+=======
+func (h *handler) Register(router *httprouter.Router) {
+	h.log.Trace("11111111")
+>>>>>>> bc38aaf (add logrus)
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/", h.IndexHandle)
 	router.GET("/delete/:uuid", h.DeleteTask)
@@ -30,7 +35,11 @@ func (h *handler) RegisterRouter(router *httprouter.Router) {
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+<<<<<<< HEAD
 	h.log.Info("Домашняя страница")
+=======
+	h.log.Info("fddjsfdj")
+>>>>>>> bc38aaf (add logrus)
 	row, err := NewConnectDB().Query("select * from test order by id") // Соединение с БД
 	if err != nil {
 		panic(err)

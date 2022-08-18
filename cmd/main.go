@@ -13,6 +13,11 @@ func main() {
 
 	log := logging.GetLogger()
 
+<<<<<<< HEAD
+=======
+	log.Warning("nhfnhfnfh")
+
+>>>>>>> bc38aaf (add logrus)
 	router := httprouter.New()
 
 	handler := user.NewHandler(log)

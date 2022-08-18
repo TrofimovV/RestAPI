@@ -24,7 +24,11 @@ func init() {
 			filename := path.Base(frame.File)
 			return fmt.Sprintf("%v()", frame.Function), fmt.Sprintf("%v :%v", filename, frame.Line)
 		},
+<<<<<<< HEAD
 		FullTimestamp: true,
+=======
+		FullTimestamp: false,
+>>>>>>> bc38aaf (add logrus)
 		DisableColors: false,
 	}
 	l.SetOutput(os.Stdout)
