@@ -1,6 +1,7 @@
 package user
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
@@ -12,21 +13,19 @@ import (
 
 type handler struct {
 	log *logrus.Entry
+	db  *sql.DB
 }
 
-func NewHandler(logger *logrus.Entry) *handler {
+func NewHandler(logger *logrus.Entry, postgres *sql.DB) *handler {
 	return &handler{
 		log: logger,
+		db:  postgres,
 	}
 }
 
-<<<<<<< HEAD
 func (h *handler) RegisterRouter(router *httprouter.Router) {
 	h.log.Info("Регистрация обработчиков")
-=======
-func (h *handler) Register(router *httprouter.Router) {
-	h.log.Trace("11111111")
->>>>>>> bc38aaf (add logrus)
+
 	router.ServeFiles("/static/*filepath", http.Dir("static"))
 	router.GET("/", h.IndexHandle)
 	router.GET("/delete/:uuid", h.DeleteTask)
@@ -35,16 +34,16 @@ func (h *handler) Register(router *httprouter.Router) {
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-<<<<<<< HEAD
+
+	h.log.Warnf("Открыто соединений с БД : %d", h.db.Stats().OpenConnections)
+
 	h.log.Info("Домашняя страница")
-=======
-	h.log.Info("fddjsfdj")
->>>>>>> bc38aaf (add logrus)
-	row, err := NewConnectDB().Query("select * from test order by id") // Соединение с БД
+
+	row, err := h.db.Query("select * from test order by id") // Соединение с БД
 	if err != nil {
 		panic(err)
 	}
-	var Tasks []Task // Новое хранилище для бд
+	var Tasks []Task // Новое хранилище для данных из БД
 	for row.Next() {
 		Tasks = append(Tasks, Task{})
 		err := row.Scan(&Tasks[len(Tasks)-1].Id, &Tasks[len(Tasks)-1].Text, &Tasks[len(Tasks)-1].Time, &Tasks[len(Tasks)-1].Done)
@@ -66,30 +65,29 @@ func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request, params htt
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	p := params.ByName("uuid")
 	h.log.Warnf("Удаление записи id : %s", p)
-	_, err := NewConnectDB().Exec(fmt.Sprintf("delete from test where id = %v", p))
+	_, err := h.db.Exec(fmt.Sprintf("delete from test where id = %v", p))
 	if err != nil {
-		log.Fatal(err)
+		h.log.Fatal(err)
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	defer http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (h *handler) AddTask(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	task := r.FormValue("text")
-	_, err := NewConnectDB().Exec("insert into test(task) values ($1)", task)
+	_, err := h.db.Exec("insert into test(task) values ($1)", task)
 	if err != nil {
-		log.Fatal(err)
+		h.log.Fatal(err)
 	}
-	h.log.Info("Добавление записи в БД")
+	h.log.Infof("Добавление записи в БД : '%s'", task)
 	defer http.Redirect(w, r, "/", http.StatusSeeOther)
-
 }
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	p := params.ByName("uuid")
 	h.log.Infof("Измениние состояния id = : %v", p)
-	_, err := NewConnectDB().Exec("update test set done = not done where id = $1", p)
+	_, err := h.db.Exec("update test set done = not done where id = $1", p)
 	if err != nil {
-		log.Fatal(err)
+		h.log.Fatal(err)
 	}
 	defer http.Redirect(w, r, "/", http.StatusSeeOther)
 }

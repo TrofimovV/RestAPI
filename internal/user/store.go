@@ -21,5 +21,6 @@ func NewConnectDB() *sql.DB {
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
+
 	return db
 }

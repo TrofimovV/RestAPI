@@ -43,12 +43,10 @@ th{
 }
 .add{
     background: #2d2d9e;
-    width: 100%;
+    width: 30%;
     height: 40px;
 }
-textarea{
-    background: greenyellow;
-}
+
 .time{
     width: 10%;
 }

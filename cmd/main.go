@@ -10,21 +10,15 @@ import (
 )
 
 func main() {
-
 	log := logging.GetLogger()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-	log.Warning("nhfnhfnfh")
-=======
-	log.Warning("Инициализация логгера")
->>>>>>> e7b6ede (ref)
+	log.Info("Инициализация логгера")
 
->>>>>>> bc38aaf (add logrus)
 	router := httprouter.New()
 
-	handler := user.NewHandler(log)
+	db := user.NewConnectDB()
+
+	handler := user.NewHandler(log, db)
 
 	handler.RegisterRouter(router)
 
