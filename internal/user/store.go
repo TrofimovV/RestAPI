@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	_ "github.com/lib/pq"
-	"log"
 )
 
 type Task struct {
@@ -13,14 +12,13 @@ type Task struct {
 	Done bool
 }
 
-func NewConnectDB() *sql.DB {
-	db, err := sql.Open("postgres", "host=localhost port=5432 password=1 dbname=API sslmode=disable")
+func NewConnectDB() (*sql.DB, error) {
+	db, err := sql.Open("postgres", "password=1 dbname=API")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	if err := db.Ping(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-
-	return db
+	return db, nil
 }

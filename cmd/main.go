@@ -10,22 +10,29 @@ import (
 )
 
 func main() {
-	log := logging.GetLogger()
+	logger := logging.GetLogger()
 
-	log.Info("Инициализация логгера")
+	logger.Info("Инициализация логгера")
 
 	router := httprouter.New()
 
-	db := user.NewConnectDB()
+	db, err := user.NewConnectDB()
+	if err != nil {
+		logger.Fatal()
+	}
 
-	handler := user.NewHandler(log, db)
+	handler := user.NewHandler(logger, db)
 
 	handler.RegisterRouter(router)
 
-	start(router)
+	//user.RegisterUser("1", "1")
+
+	if err != start(router) {
+		logger.Fatal(err)
+	}
 }
 
-func start(router *httprouter.Router) {
+func start(router *httprouter.Router) error {
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatal(err)
@@ -35,8 +42,7 @@ func start(router *httprouter.Router) {
 		Handler: router,
 	}
 
-	logging.GetLogger().Debugf("Сервер слушает порт : 8080")
+	logging.GetLogger().Debug("Сервер слушает порт : 8080")
 
-	server.Serve(listener)
-
+	return server.Serve(listener)
 }
