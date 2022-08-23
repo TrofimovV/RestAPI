@@ -3,7 +3,7 @@ package main
 import (
 	"RestAPI/internal/user"
 	"RestAPI/pkg/logging"
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"net/http"
@@ -14,7 +14,7 @@ func main() {
 
 	logger.Info("Инициализация логгера")
 
-	router := httprouter.New()
+	router := mux.NewRouter()
 
 	db, err := user.NewConnectDB()
 	if err != nil {
@@ -25,14 +25,12 @@ func main() {
 
 	handler.RegisterRouter(router)
 
-	//user.RegisterUser("1", "1")
-
 	if err != start(router) {
 		logger.Fatal(err)
 	}
 }
 
-func start(router *httprouter.Router) error {
+func start(router *mux.Router) error {
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatal(err)

@@ -12,6 +12,7 @@ type Task struct {
 	Done bool
 }
 
+//todo сделать приветсвенное окно
 func NewConnectDB() (*sql.DB, error) {
 	db, err := sql.Open("postgres", "password=1 dbname=API")
 	if err != nil {
