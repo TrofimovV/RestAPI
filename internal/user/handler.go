@@ -12,8 +12,7 @@ import (
 	"strings"
 )
 
-var store = sessions.NewCookieStore([]byte(securecookie.GenerateRandomKey(32)))
-var result bool
+var store = sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
 
 type handler struct {
 	logger *logrus.Entry
@@ -21,11 +20,11 @@ type handler struct {
 	user   *User
 }
 
-func NewHandler(logger *logrus.Entry, postgres *sql.DB, u *User) *handler {
+func NewHandler(logger *logrus.Entry, postgres *sql.DB, user *User) *handler {
 	return &handler{
 		logger: logger,
 		db:     postgres,
-		user:   u,
+		user:   user,
 	}
 }
 
@@ -34,34 +33,28 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 
 	mux.HandleFunc("/", h.IndexHandle)
 	mux.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/delete/{id}", h.DeleteTask)
-	mux.HandleFunc("/addTask/", h.AddTask)
-	mux.HandleFunc("/done/{id}", h.Done)
+	mux.HandleFunc("/delete/{id}", Auth(h.DeleteTask))
+	mux.HandleFunc("/addTask/", Auth(h.AddTask))
+	mux.HandleFunc("/done/{id}", Auth(h.Done))
 	mux.HandleFunc("/register", h.RegisterUser)
 	mux.HandleFunc("/login", h.Login)
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
-	//session, _ := store.Get(r, "cookie-name")
-	//
-	//if auth, ok := session.Values["auth"].(bool); !ok || !auth {
-	//	http.Error(w, "Forbidden", http.StatusForbidden)
-	//	return
-	//}
-	h.logger.Info("Домашняя страница")
-
-	row, err := h.db.Query("select * from test order by id") // Соединение с БД
+	row, err := h.db.Query("select * from test order by id")
 	if err != nil {
 		panic(err)
 	}
 
-	u := User{} // Новое хранилище для данных из БД
+	result, _ := h.db.Exec("select * from test order by id")
+	numOfColumns, _ := result.RowsAffected()
 
-	for row.Next() {
-		u.Tasks = append(u.Tasks, Task{})
-		err := row.Scan(&u.Tasks[len(u.Tasks)-1].Id, &u.Tasks[len(u.Tasks)-1].Text, &u.Tasks[len(u.Tasks)-1].Time, &u.Tasks[len(u.Tasks)-1].Done)
+	h.user.Tasks = make([]Task, numOfColumns)
+
+	for i := 0; row.Next(); i++ {
+		err := row.Scan(&h.user.Tasks[i].Id, &h.user.Tasks[i].Text, &h.user.Tasks[i].Time, &h.user.Tasks[i].Done)
 		t := strings.NewReplacer("T", " ", "Z", "", "-", ".") // формат даты
-		u.Tasks[len(u.Tasks)-1].Time = t.Replace(u.Tasks[len(u.Tasks)-1].Time)
+		h.user.Tasks[i].Time = t.Replace(h.user.Tasks[i].Time)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -71,7 +64,7 @@ func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	if err := tmpl.ExecuteTemplate(w, "index.html", u); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "index.html", h.user); err != nil {
 		panic(err)
 	}
 }
@@ -129,16 +122,19 @@ func (h handler) Login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	row := h.db.QueryRow("select exists(select name, password from users where name =$1 and password=$2)", name, password)
-	if err := row.Scan(&result); err != nil {
+	if err := row.Scan(&h.user.Entry); err != nil {
 		h.logger.Warning(err)
 	}
+	h.logger.Warn(h.user.Entry)
 
-	if result {
+	if h.user.Entry == true {
 		session, _ := store.Get(r, "cookie-name")
 		session.Values["auth"] = true
 		session.Save(r, w)
+		h.user.Name = name
+		h.user.Password = password
 		http.Redirect(w, r, "/", 200)
+	} else {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
-
-	defer http.Redirect(w, r, "/", http.StatusSeeOther)
 }
