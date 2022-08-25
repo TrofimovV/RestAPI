@@ -21,7 +21,9 @@ func main() {
 		logger.Fatal()
 	}
 
-	handler := user.NewHandler(logger, db)
+	u := user.NewUser()
+
+	handler := user.NewHandler(logger, db, u)
 
 	handler.RegisterRouter(router)
 

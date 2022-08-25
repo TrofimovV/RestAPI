@@ -1,0 +1,12 @@
+{{define "login"}}
+<div>
+    {{if .Entry}}
+    Вы вошли как {{.Name}}
+    {{else}}
+    <form action="login">
+    <div>логин<textarea name="name"> </textarea></div>
+    <div >пароль<textarea name="password"> </textarea> <button> Вход </button></div>
+</form>
+    {{end}}
+</div>
+{{end}}

@@ -5,6 +5,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type User struct {
+	Tasks    []Task
+	Name     string
+	Password string
+	Entry    bool
+}
+
 type Task struct {
 	Id   int
 	Text string
@@ -12,7 +19,6 @@ type Task struct {
 	Done bool
 }
 
-//todo сделать приветсвенное окно
 func NewConnectDB() (*sql.DB, error) {
 	db, err := sql.Open("postgres", "password=1 dbname=API")
 	if err != nil {
@@ -22,4 +28,8 @@ func NewConnectDB() (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func NewUser() *User {
+	return &User{}
 }
