@@ -119,7 +119,7 @@ func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	defer http.Redirect(w, r, "/", http.StatusOK)
 }
 
-func (h handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 
@@ -131,7 +131,9 @@ func (h handler) Login(w http.ResponseWriter, r *http.Request) {
 	if h.user.Entry == true {
 		session, _ := store.Get(r, "cookie-name")
 		session.Values["auth"] = true
-		session.Save(r, w)
+		if err := session.Save(r, w); err != nil {
+			h.logger.Error(err)
+		}
 		h.user.Name = name
 		h.user.Password = password
 		http.Redirect(w, r, "/", 200)
@@ -141,9 +143,14 @@ func (h handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "cookie-name")
+	session, err := store.Get(r, "cookie-name")
+	if err != nil {
+		h.logger.Error(err)
+	}
 	session.Values["auth"] = false
-	session.Save(r, w)
+	if err := session.Save(r, w); err != nil {
+		h.logger.Error(err)
+	}
 	h.user.Entry = false
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
