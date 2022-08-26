@@ -33,15 +33,17 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 
 	mux.HandleFunc("/", h.IndexHandle)
 	mux.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/delete/{id}", Auth(h.DeleteTask))
-	mux.HandleFunc("/addTask/", Auth(h.AddTask))
-	mux.HandleFunc("/done/{id}", Auth(h.Done))
+	mux.HandleFunc("/delete/{id}", CheckCookie(h.DeleteTask))
+	mux.HandleFunc("/addTask/", CheckCookie(h.AddTask))
+	mux.HandleFunc("/done/{id}", CheckCookie(h.Done))
 	mux.HandleFunc("/register", h.RegisterUser)
 	mux.HandleFunc("/login", h.Login)
+	mux.HandleFunc("/logout", h.Logout)
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
 	row, err := h.db.Query("select * from test order by id")
+
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +127,6 @@ func (h handler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := row.Scan(&h.user.Entry); err != nil {
 		h.logger.Warning(err)
 	}
-	h.logger.Warn(h.user.Entry)
 
 	if h.user.Entry == true {
 		session, _ := store.Get(r, "cookie-name")
@@ -137,4 +138,12 @@ func (h handler) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
+}
+
+func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "cookie-name")
+	session.Values["auth"] = false
+	session.Save(r, w)
+	h.user.Entry = false
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
