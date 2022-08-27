@@ -14,10 +14,9 @@ func CheckCookie(handler http.HandlerFunc) http.HandlerFunc {
 			logger.Error(err)
 		}
 		if auth, ok := session.Values["auth"].(bool); !ok || !auth {
-			http.Redirect(w, r, "/", http.StatusNotAcceptable)
+			http.Redirect(w, r, "/", 303)
 			return
 		}
 		handler.ServeHTTP(w, r)
 	}
-
 }

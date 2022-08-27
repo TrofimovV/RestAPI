@@ -13,6 +13,7 @@ import (
 )
 
 var store = sessions.NewCookieStore(securecookie.GenerateRandomKey(32))
+var tmpl = template.Must(template.ParseFiles("index.html", "login.html", "register.html"))
 
 type handler struct {
 	logger *logrus.Entry
@@ -61,12 +62,8 @@ func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
-	tmpl, err := template.ParseFiles("index.html", "login.html", "register.html")
-	if err != nil {
-		panic(err)
-	}
 
-	if err := tmpl.ExecuteTemplate(w, "index.html", h.user); err != nil {
+	if err := tmpl.Execute(w, h.user); err != nil {
 		panic(err)
 	}
 }
@@ -79,7 +76,8 @@ func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Fatal(err)
 	}
-	defer http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 }
 
 func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +89,7 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Infof("Добавление записи в БД : '%s'", task)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 }
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
@@ -100,23 +99,29 @@ func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Fatal(err)
 	}
-	defer http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 }
 
 func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 
-	/*result,*/
-	_, err := h.db.Exec("insert into users(name, password) values ($1,$2)", name, password)
+	err := tmpl.ExecuteTemplate(w, "register.html", nil)
+	if err != nil {
+		h.logger.Error(err)
+	}
+
+	_, err = h.db.Exec("insert into users(name, password) values ($1,$2)", name, password)
 	if err != nil {
 		h.logger.Warning("Ошибка регистрации\n", err)
-		http.Redirect(w, r, "/login", http.StatusNotAcceptable)
+		http.Redirect(w, r, "/", 303)
 	}
 
 	h.logger.Tracef("Пользователь зарегистрирован  %s : %s", name, password)
 
-	defer http.Redirect(w, r, "/", http.StatusOK)
+	http.Redirect(w, r, "/", http.StatusFound)
+	return
 }
 
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +141,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		h.user.Name = name
 		h.user.Password = password
-		http.Redirect(w, r, "/", 200)
+		http.Redirect(w, r, "/", 303)
 	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
