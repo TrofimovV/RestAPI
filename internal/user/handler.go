@@ -42,7 +42,7 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 	mux.HandleFunc("/logout", h.Logout)
 }
 
-func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
+func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 	row, err := h.db.Query("select * from test order by id")
 
 	if err != nil {

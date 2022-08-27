@@ -9,7 +9,12 @@
     {{template "login" .}}
         <div align = "center" >
             <form action="addTask/">
-                <div><input name="text"> </input></div>
+                {{if not .Entry}}
+                <div>
+                    Для добавления записи нужно ВОЙТИ!!!
+                </div>
+                {{end}}
+                <div><textarea name="text"> </textarea></div>
                 <button class="add"> Добавить в таблицу</button>
              </form>
         </div>
