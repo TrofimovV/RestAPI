@@ -1,7 +1,9 @@
 package user
 
 import (
+	"RestAPI/pkg/logging"
 	"database/sql"
+	"encoding/json"
 	_ "github.com/lib/pq"
 )
 
@@ -32,4 +34,18 @@ func NewConnectDB() (*sql.DB, error) {
 
 func NewUser() *User {
 	return &User{}
+}
+
+func DecodeJSON(u *User) {
+	logger := logging.GetLogger()
+	marshal, err := json.Marshal(u)
+	if err != nil {
+		return
+	}
+	logger.Warning(marshal)
+}
+
+//TODO GET JSOM FROM USER
+func SaveTable() {
+
 }

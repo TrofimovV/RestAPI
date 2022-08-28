@@ -27,6 +27,10 @@ func main() {
 
 	handler.RegisterRouter(router)
 
+	//trying to get json
+
+	user.DecodeJSON(u)
+
 	if err != start(router) {
 		logger.Fatal(err)
 	}
