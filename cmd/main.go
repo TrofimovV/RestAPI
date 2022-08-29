@@ -29,8 +29,6 @@ func main() {
 
 	//trying to get json
 
-	user.DecodeJSON(u)
-
 	if err != start(router) {
 		logger.Fatal(err)
 	}

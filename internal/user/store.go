@@ -5,20 +5,21 @@ import (
 	"database/sql"
 	"encoding/json"
 	_ "github.com/lib/pq"
+	"os"
 )
 
 type User struct {
-	Tasks    []Task
-	Name     string
-	Password string
-	Entry    bool
+	Tasks    []Task `json:"tasks,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Password string `json:"-"`
+	Entry    bool   `json:"entry"`
 }
 
 type Task struct {
-	Id   int
-	Text string
-	Time string
-	Done bool
+	Id   int    `json:"id,omitempty"`
+	Text string `json:"text,omitempty"`
+	Time string `json:"time,omitempty"`
+	Done bool   `json:"done,omitempty"`
 }
 
 func NewConnectDB() (*sql.DB, error) {
@@ -36,16 +37,23 @@ func NewUser() *User {
 	return &User{}
 }
 
-func DecodeJSON(u *User) {
+func (u *User) SaveJSON() {
 	logger := logging.GetLogger()
-	marshal, err := json.Marshal(u)
+
+	marshal, err := json.Marshal(&u)
 	if err != nil {
-		return
+		logger.Error(err)
 	}
-	logger.Warning(marshal)
-}
 
-//TODO GET JSOM FROM USER
-func SaveTable() {
+	file, err := os.Create(u.Name)
+	if err != nil {
+		logger.Error(err)
+	}
 
+	defer file.Close()
+
+	_, err = file.Write(marshal)
+	if err != nil {
+		logger.Error(err)
+	}
 }

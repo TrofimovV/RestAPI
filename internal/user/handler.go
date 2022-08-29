@@ -66,6 +66,9 @@ func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 	if err := tmpl.Execute(w, h.user); err != nil {
 		panic(err)
 	}
+
+	h.user.SaveJSON()
+
 }
 
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
