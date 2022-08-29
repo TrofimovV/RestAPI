@@ -144,6 +144,18 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		h.user.Name = name
 		h.user.Password = password
+
+		//file, err := os.OpenFile(h.user.Name, os.O_RDWR|os.O_APPEND, 0644)
+		//if err != nil {
+		//	h.logger.Error(err)
+		//}
+		//encoder := json.NewDecoder(file)
+		//err = encoder.Decode(&h.user.Tasks)
+		//if err != nil {
+		//	h.logger.Error(err, h.user)
+		//}
+		//
+		//defer file.Close()
 		http.Redirect(w, r, "/", 303)
 	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)

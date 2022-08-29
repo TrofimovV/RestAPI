@@ -9,10 +9,10 @@ import (
 )
 
 type User struct {
-	Tasks    []Task `json:"tasks,omitempty"`
-	Name     string `json:"name,omitempty"`
+	Tasks    []Task `json:"-"`
+	Name     string `json:"-"`
 	Password string `json:"-"`
-	Entry    bool   `json:"entry"`
+	Entry    bool   `json:"-"`
 }
 
 type Task struct {
@@ -40,14 +40,14 @@ func NewUser() *User {
 func (u *User) SaveJSON() {
 	logger := logging.GetLogger()
 
-	marshal, err := json.Marshal(&u)
+	marshal, err := json.MarshalIndent(&u.Tasks, "", "")
 	if err != nil {
 		logger.Error(err)
 	}
 
 	file, err := os.Create(u.Name)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("имя пользователя: %s : %v", u.Name, err)
 	}
 
 	defer file.Close()
@@ -56,4 +56,5 @@ func (u *User) SaveJSON() {
 	if err != nil {
 		logger.Error(err)
 	}
+	logger.Info("Save JSON ")
 }
