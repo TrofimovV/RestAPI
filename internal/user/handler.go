@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -43,41 +44,48 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 }
 
 func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
-	row, err := h.db.Query("select * from test order by id")
+	if h.user.Entry {
+		table := fmt.Sprintf("select * from %s", h.user.Name)
 
-	if err != nil {
-		panic(err)
-	}
-
-	result, _ := h.db.Exec("select * from test order by id")
-	numOfColumns, _ := result.RowsAffected()
-
-	h.user.Tasks = make([]Task, numOfColumns)
-
-	for i := 0; row.Next(); i++ {
-		err := row.Scan(&h.user.Tasks[i].Id, &h.user.Tasks[i].Text, &h.user.Tasks[i].Time, &h.user.Tasks[i].Done)
-		t := strings.NewReplacer("T", " ", "Z", "", "-", ".") // формат даты
-		h.user.Tasks[i].Time = t.Replace(h.user.Tasks[i].Time)
+		row, err := h.db.Query(table)
 		if err != nil {
-			log.Fatal(err)
+			h.logger.Error(err)
+		}
+
+		result, _ := h.db.Exec(table)
+		numOfColumns, _ := result.RowsAffected()
+
+		h.user.Tasks = make([]Task, numOfColumns)
+
+		for i := 0; row.Next(); i++ {
+			err := row.Scan(&h.user.Tasks[i].Id, &h.user.Tasks[i].Text, &h.user.Tasks[i].Time, &h.user.Tasks[i].Done)
+			t := strings.NewReplacer("T", " ", "Z", "", "-", ".") // формат даты
+			h.user.Tasks[i].Time = t.Replace(h.user.Tasks[i].Time)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		if err := tmpl.Execute(w, h.user); err != nil {
+			panic(err)
+		}
+
+		h.user.SaveJSON()
+
+	} else {
+		if err := tmpl.Execute(w, nil); err != nil {
+			panic(err)
 		}
 	}
-
-	if err := tmpl.Execute(w, h.user); err != nil {
-		panic(err)
-	}
-
-	h.user.SaveJSON()
-
 }
 
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	h.logger.Warnf("Удаление записи id : %s", vars["id"])
-	_, err := h.db.Exec("delete from test where id = $1", vars["id"])
+	_, err := h.db.Exec("delete from $2 where id = $1", vars["id"], h.user.Name)
 	if err != nil {
-		h.logger.Fatal(err)
+		h.logger.Error(err)
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
@@ -86,9 +94,13 @@ func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
 	task := r.FormValue("text")
 
-	_, err := h.db.Exec("insert into test(task) values ($1)", task)
+	table := fmt.Sprintf("insert into %s(task) values ('%s')", h.user.Name, task)
+
+	h.logger.Warning(table)
+
+	_, err := h.db.Exec(table)
 	if err != nil {
-		h.logger.Fatal(err)
+		h.logger.Error(err)
 	}
 	h.logger.Infof("Добавление записи в БД : '%s'", task)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -98,9 +110,9 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
 func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	h.logger.Infof("Измениние состояния id = : %v", vars["id"])
-	_, err := h.db.Exec("update test set done = not done where id = $1", vars["id"])
+	_, err := h.db.Exec("update $1 set done = not done where id = $2", h.user.Name, vars["id"])
 	if err != nil {
-		h.logger.Fatal(err)
+		h.logger.Error(err)
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
@@ -114,6 +126,14 @@ func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error(err)
 	}
+
+	h.user.Name = name
+	h.user.Password = password
+	//create table
+	table := fmt.Sprintf("create table %s (id serial,task text,time timestamp default now(), done bool default true)", name)
+	_, err = h.db.Exec(table)
+
+	h.logger.Errorf("Create table : %s", name)
 
 	_, err = h.db.Exec("insert into users(name, password) values ($1,$2)", name, password)
 	if err != nil {
