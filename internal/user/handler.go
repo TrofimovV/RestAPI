@@ -70,7 +70,7 @@ func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 			panic(err)
 		}
 
-		h.user.SaveJSON()
+		//h.user.SaveJSON()
 
 	} else {
 		if err := tmpl.Execute(w, nil); err != nil {
@@ -132,7 +132,7 @@ func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	h.user.Name = name
 	h.user.Password = password
-	//create table
+	//create table if not exist
 	table := fmt.Sprintf("create table %s (id serial,task text,time timestamp default now(), done bool default true)", name)
 	_, err = h.db.Exec(table)
 

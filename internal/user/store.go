@@ -1,11 +1,8 @@
 package user
 
 import (
-	"RestAPI/pkg/logging"
 	"database/sql"
-	"encoding/json"
 	_ "github.com/lib/pq"
-	"os"
 )
 
 type User struct {
@@ -37,24 +34,25 @@ func NewUser() *User {
 	return &User{}
 }
 
-func (u *User) SaveJSON() {
-	logger := logging.GetLogger()
-
-	marshal, err := json.MarshalIndent(&u.Tasks, "", "")
-	if err != nil {
-		logger.Error(err)
-	}
-
-	file, err := os.Create(u.Name)
-	if err != nil {
-		logger.Errorf("имя пользователя: %s : %v", u.Name, err)
-	}
-
-	defer file.Close()
-
-	_, err = file.Write(marshal)
-	if err != nil {
-		logger.Error(err)
-	}
-	logger.Info("Save JSON ")
-}
+//todo get env
+//func (u *User) SaveJSON() {
+//	logger := logging.GetLogger()
+//
+//	marshal, err := json.MarshalIndent(&u.Tasks, "", "")
+//	if err != nil {
+//		logger.Error(err)
+//	}
+//
+//	file, err := os.Create(u.Name)
+//	if err != nil {
+//		logger.Errorf("имя пользователя: %s : %v", u.Name, err)
+//	}
+//
+//	defer file.Close()
+//
+//	_, err = file.Write(marshal)
+//	if err != nil {
+//		logger.Error(err)
+//	}
+//	logger.Info("Save JSON ")
+//}
