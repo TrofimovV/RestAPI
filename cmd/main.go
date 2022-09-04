@@ -18,7 +18,7 @@ func main() {
 
 	db, err := user.NewConnectDB()
 	if err != nil {
-		logger.Fatal()
+		logger.Error(err)
 	}
 
 	u := user.NewUser()
@@ -30,7 +30,7 @@ func main() {
 	//trying to get json
 
 	if err != start(router) {
-		logger.Fatal(err)
+		logger.Error(err)
 	}
 }
 
