@@ -2,10 +2,12 @@ FROM golang
 
 RUN go version
 ENV GOPATH=/
-git
-COPY ./ ./
+
+COPY . .
 
 RUN go mod download
-RUN go build -o todo-app ./cmd/main.go
+RUN go build todo-app ./cmd/main.go
+
+EXPOSE 8080
 
 CMD ["./todo-app"]

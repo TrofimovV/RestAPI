@@ -45,14 +45,14 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 
 func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 	if h.user.Entry {
-		table := fmt.Sprintf("select * from %s order by id", h.user.Name)
+		query := fmt.Sprintf("select * from %s order by id", h.user.Name)
 
-		row, err := h.db.Query(table)
+		row, err := h.db.Query(query)
 		if err != nil {
 			h.logger.Error(err)
 		}
 
-		result, _ := h.db.Exec(table)
+		result, _ := h.db.Exec(query)
 		numOfColumns, _ := result.RowsAffected()
 
 		h.user.Tasks = make([]Task, numOfColumns)

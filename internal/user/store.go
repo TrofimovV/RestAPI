@@ -20,7 +20,7 @@ type Task struct {
 }
 
 func NewConnectDB() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "password=postgres dbname=postgres")
+	db, err := sql.Open("postgres", "password=1 dbname=API")
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +32,7 @@ func NewConnectDB() (*sql.DB, error) {
 
 func NewUser() *User {
 	return &User{}
+
 }
 
 //todo get env
