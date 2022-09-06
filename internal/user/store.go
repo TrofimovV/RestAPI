@@ -1,7 +1,9 @@
 package user
 
 import (
+	"RestAPI/configs"
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 )
 
@@ -19,8 +21,9 @@ type Task struct {
 	Done bool   `json:"done,omitempty"`
 }
 
-func NewConnectDB() (*sql.DB, error) {
-	db, err := sql.Open("postgres", "password=1 dbname=API")
+func NewConnectDB(cfg configs.Config) (*sql.DB, error) {
+	dataSourseName := fmt.Sprintf("password=%s dbname=%s", cfg.Password, cfg.DB)
+	db, err := sql.Open("postgres", dataSourseName)
 	if err != nil {
 		return nil, err
 	}

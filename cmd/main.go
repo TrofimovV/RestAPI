@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RestAPI/configs"
 	"RestAPI/internal/user"
 	"RestAPI/pkg/logging"
 	"github.com/gorilla/mux"
@@ -16,7 +17,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	db, err := user.NewConnectDB()
+	cfg := configs.NewConfig()
+
+	db, err := user.NewConnectDB(cfg)
 	if err != nil {
 		logger.Error(err)
 	}
