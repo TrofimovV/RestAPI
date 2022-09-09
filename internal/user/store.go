@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -21,9 +22,11 @@ type Task struct {
 	Done bool   `json:"done,omitempty"`
 }
 
-func NewConnectDB(cfg configs.Config) (*sql.DB, error) {
-	dataSourseName := fmt.Sprintf("password=%s dbname=%s", cfg.Password, cfg.DB)
-	db, err := sql.Open("postgres", dataSourseName)
+func NewConnectDB(logger *logrus.Entry, cfg *configs.ConfigDatabase) (*sql.DB, error) {
+	dataConfig := fmt.Sprintf("password=%s dbname=%s", cfg.Password, cfg.Name)
+	//logging with "pkg/logging"
+	logger.Debugf("\nDB_NAME = %s\nDB_PASSWORD = %s", cfg.Name, cfg.Password)
+	db, err := sql.Open("postgres", dataConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +41,6 @@ func NewUser() *User {
 
 }
 
-//todo get env
 //func (u *User) SaveJSON() {
 //	logger := logging.GetLogger()
 //

@@ -80,6 +80,8 @@ func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	vars := mux.Vars(r)
 
 	table := fmt.Sprintf("delete from %s where id = %s", h.user.Name, vars["id"])
@@ -90,10 +92,13 @@ func (h *handler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Warnf("Удаление записи id : %s", vars["id"])
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 	return
 }
 
 func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	task := r.FormValue("text")
 
 	table := fmt.Sprintf("insert into %s(task) values ('%s')", h.user.Name, task)
@@ -106,10 +111,13 @@ func (h *handler) AddTask(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Infof("Добавление записи в БД : '%s'", task)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 	return
 }
 
 func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	vars := mux.Vars(r)
 	table := fmt.Sprintf("update %s set done = not done where id = %s", h.user.Name, vars["id"])
 	_, err := h.db.Exec(table)
@@ -122,6 +130,8 @@ func (h *handler) Done(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 
@@ -151,6 +161,8 @@ func (h *handler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 
@@ -186,6 +198,8 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	
 	session, err := store.Get(r, "cookie-name")
 	if err != nil {
 		h.logger.Error(err)

@@ -19,7 +19,7 @@ func main() {
 
 	cfg := configs.NewConfig()
 
-	db, err := user.NewConnectDB(cfg)
+	db, err := user.NewConnectDB(logger, cfg)
 	if err != nil {
 		logger.Error(err)
 	}

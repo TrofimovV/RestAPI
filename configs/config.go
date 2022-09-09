@@ -5,18 +5,21 @@ import (
 	"log"
 )
 
-type Config struct {
-	Host     string `env:"HOST"`
-	Username string `env:"USER_NAME"`
-	DB       string `env:"DB_NAME"`
-	Password string `env:"DB_PASSWORD"'`
+type ConfigDatabase struct {
+	Port     string `env:"DB_PORT" env-default:"5432"`
+	Host     string `env:"DB_HOST" env-default:"localhost"`
+	Username string `env:"DB_USER_NAME" env-default:"user"`
+	Name     string `env:"DB_NAME" env-default:"postgres"`
+	Password string `env:"DB_PASSWORD"`
 }
 
-var cfg *Config
+var cfg ConfigDatabase
 
-func NewConfig() *Config {
-	if err := cleanenv.ReadEnv(&cfg); err != nil {
+//Read config from .env file
+
+func NewConfig() *ConfigDatabase {
+	if err := cleanenv.ReadConfig(".env", &cfg); err != nil {
 		log.Print(err)
 	}
-	return cfg
+	return &cfg
 }
