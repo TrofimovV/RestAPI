@@ -180,7 +180,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		h.user.Name = name
 		h.user.Password = password
 
-		//file, err := os.OpenFile(h.user.Name, os.O_RDWR|os.O_APPEND, 0644)
+		//file, err := os.OpenFile(h.user.DBName, os.O_RDWR|os.O_APPEND, 0644)
 		//if err != nil {
 		//	h.logger.Error(err)
 		//}
@@ -199,7 +199,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) Logout(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	
+
 	session, err := store.Get(r, "cookie-name")
 	if err != nil {
 		h.logger.Error(err)

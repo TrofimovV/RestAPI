@@ -6,8 +6,6 @@ ENV GOPATH=/
 COPY . .
 
 RUN go mod download
-RUN go build todo-app ./cmd/main.go
+RUN go build ./cmd/main.go
 
-EXPOSE 8080
-
-CMD ["./todo-app"]
+CMD ["./main"]

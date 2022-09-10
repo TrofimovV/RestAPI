@@ -23,9 +23,9 @@ type Task struct {
 }
 
 func NewConnectDB(logger *logrus.Entry, cfg *configs.ConfigDatabase) (*sql.DB, error) {
-	dataConfig := fmt.Sprintf("password=%s dbname=%s", cfg.Password, cfg.Name)
+	dataConfig := fmt.Sprintf("password=%s dbname=%s host=%s sslmode=disable user=user", cfg.Password, cfg.DBName, cfg.Host)
 	//logging with "pkg/logging"
-	logger.Debugf("\nDB_NAME = %s\nDB_PASSWORD = %s", cfg.Name, cfg.Password)
+	logger.Debugf("POSTGRES_DB = %s POSTGRES_PASSWORD = %s", cfg.DBName, cfg.Password)
 	db, err := sql.Open("postgres", dataConfig)
 	if err != nil {
 		return nil, err
@@ -49,9 +49,9 @@ func NewUser() *User {
 //		logger.Error(err)
 //	}
 //
-//	file, err := os.Create(u.Name)
+//	file, err := os.Create(u.DBName)
 //	if err != nil {
-//		logger.Errorf("имя пользователя: %s : %v", u.Name, err)
+//		logger.Errorf("имя пользователя: %s : %v", u.DBName, err)
 //	}
 //
 //	defer file.Close()

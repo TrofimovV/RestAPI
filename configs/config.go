@@ -6,11 +6,11 @@ import (
 )
 
 type ConfigDatabase struct {
-	Port     string `env:"DB_PORT" env-default:"5432"`
-	Host     string `env:"DB_HOST" env-default:"localhost"`
-	Username string `env:"DB_USER_NAME" env-default:"user"`
-	Name     string `env:"DB_NAME" env-default:"postgres"`
-	Password string `env:"DB_PASSWORD"`
+	Port     string `env:"POSTGRES_PORT" env-default:"5432"`
+	Host     string `env:"POSTGRES_HOST" env-default:"localhost"`
+	Username string `env:"POSTGRES_USER" env-default:"user"`
+	DBName   string `env:"POSTGRES_DB" env-default:"postgres"`
+	Password string `env:"POSTGRES_PASSWORD"`
 }
 
 var cfg ConfigDatabase
