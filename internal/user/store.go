@@ -23,7 +23,8 @@ type Task struct {
 }
 
 func NewConnectDB(logger *logrus.Entry, cfg *configs.ConfigDatabase) (*sql.DB, error) {
-	dataConfig := fmt.Sprintf("password=%s dbname=%s host=%s sslmode=disable user=user", cfg.Password, cfg.DBName, cfg.Host)
+	dataConfig := fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable",
+		cfg.Host, cfg.Username, cfg.Password, cfg.DBName)
 	//logging with "pkg/logging"
 	logger.Debugf("POSTGRES_DB = %s POSTGRES_PASSWORD = %s", cfg.DBName, cfg.Password)
 	db, err := sql.Open("postgres", dataConfig)

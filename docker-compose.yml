@@ -7,9 +7,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_HOST=localhost
       - POSTGRES_USER=user
-
     image: postgres:latest
     restart: always
     volumes:
@@ -23,6 +21,6 @@ services:
       - "8080:8080"
     depends_on:
       - db
-
-
+    links:
+      - db
 
