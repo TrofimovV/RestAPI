@@ -43,7 +43,7 @@ func (h *handler) RegisterRouter(mux *mux.Router) {
 	mux.HandleFunc("/logout", h.Logout)
 }
 
-func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
+func (h *handler) IndexHandle(w http.ResponseWriter, r *http.Request) {
 	if h.user.Entry {
 		query := fmt.Sprintf("select * from %s order by id", h.user.Name)
 
@@ -70,12 +70,14 @@ func (h *handler) IndexHandle(w http.ResponseWriter, _ *http.Request) {
 			panic(err)
 		}
 
+		w.WriteHeader(http.StatusOK)
 		//h.user.SaveJSON()
 
 	} else {
 		if err := tmpl.Execute(w, nil); err != nil {
 			panic(err)
 		}
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 

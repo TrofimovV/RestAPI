@@ -27,7 +27,7 @@ func NewConnectDB(logger *logrus.Entry, cfg *configs.ConfigDatabase) (*sql.DB, e
 	dataConfig := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
 		cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName)
 	//logging with "pkg/logging"
-	logger.Debugf("POSTGRES_DB = %s POSTGRES_PASSWORD = %s", cfg.DBName, cfg.Password)
+	logger.Debugf("POSTGRES_DB = %s POSTGRES_USER = %s", cfg.DBName, cfg.Username)
 
 	db, err := sql.Open("postgres", dataConfig)
 	if err != nil {

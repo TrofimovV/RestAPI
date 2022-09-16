@@ -2,3 +2,4 @@
 .idea
 .database
 .dockerignore
+.env
